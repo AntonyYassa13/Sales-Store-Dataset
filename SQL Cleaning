@@ -1,0 +1,284 @@
+use Sales_Data
+select *
+from Products
+update Products
+set UnitPrice = ROUND(UnitPrice,2)
+-- Adding a new column the sum of unit price & total unit in stock
+Alter table Products
+Add TotalStockPrice As ( UnitPrice*UnitsInStock)
+-----------------------------------------------------
+--here we delete all nulls 
+delete from Products
+Where ProductID is null
+or ProductName is null
+or CategoryID is null 
+or SupplierID is null
+or UnitPrice is null 
+or UnitsInStock is null
+or ReorderLevel is null
+---------------------------------------------
+select*
+from Customers
+delete from Customers
+where CustomerID is null
+or CustomerName is null
+or ContactName is null
+or City is null
+or Region is null
+or Country is null
+or Phone is null 
+or Email is null
+or RegistrationDate is null
+-------------------------------------------------
+update Customers
+set Phone = REPLACE (Phone,'x','-')
+update Customers
+set Phone = REPLACE (Phone,'.','-')
+update Customers
+set Phone = REPLACE (Phone,'\','-')
+select * 
+from Customers
+SELECT * 
+FROM Customers
+--------------------------------------------------------------
+--Here, we wanted to make our data more accurate and realistic, so we changed the domain name 
+UPDATE Customers
+SET email = LEFT(email, CHARINDEX('@', email) - 1) + '@gmail.com';
+----------------------------------------------------------------
+--To check all the columns together.
+sp_help Customers;
+------------------------------------------
+select *
+from Order_Details
+-- round Discount
+Update Order_Details
+set Discount = ROUND(Discount,2)
+--- Round LineTotal
+update Order_Details
+set LineTotal = ROUND(LineTotal,2)
+---Round UnitPrice
+update Order_Details
+set UnitPrice = ROUND(UnitPrice,2)
+-------------------------------------
+-- Adding new column total after disscount
+Alter Table Order_Details
+Add TotalAfterDiss as ((1-discount)*Quantity*UnitPrice)
+Delete Order_Details
+where OrderDetailID is null
+or OrderID is null
+or ProductID is null
+or Quantity is null
+or UnitPrice is null
+or Discount is null
+or LineTotal is null
+or totalafterdiss is null
+------------------------------------------
+select* 
+from Orders			
+Delete Orders
+where OrderID is null
+or CustomerID is null
+or OrderDate is null
+or ShippedDate is null
+or ShipCity is null
+or ShipCountry is null
+or Freight is null
+or SalesRep is null
+Update Orders
+set Freight = ROUND(Freight,2)
+-----------------------------------------
+select *
+from Orders_Summary
+delete Orders_Summary
+where OrderID is null
+or CustomerID is null
+or OrderDate is null
+or ShippedDate is null
+or ShipCity is null
+or ShipCountry is null
+or Freight is null
+or SalesRep is null 
+or OrderTotal is null
+update Orders_Summary
+set Freight = ROUND(Freight,2)
+update Orders_Summary
+set OrderTotal = ROUND(OrderTotal,2)
+----------------------------------------------
+select* 
+from Suppliers
+Update Suppliers
+set Phone =REPLACE(phone,'x','-')
+Update Suppliers
+set Phone =REPLACE(phone,'.','-')
+delete Suppliers
+where SupplierID is null
+or SupplierName is null
+or ContactName is null
+or City is null
+or Country is null
+or Phone is null
+or Email is null 
+
+----------------------
+SELECT * FROM INFORMATION_SCHEMA.TABLES;
+--select distinct 
+--t1.OrderID,
+--count (T2.ProductID) as prducts
+--from Orders_Summary as T1
+--left join Order_Details as T2
+--on T1.OrderID=T2.OrderID
+--group by T1.OrderID
+--order by 1
+select distinct 
+os.OrderID
+,od.ProductID
+,os.OrderDate
+,os.CustomerID
+,os.ShippedDate
+,os.Freight
+,p.ProductName
+,c.CustomerName
+,s.SupplierName
+,cat.CategoryName
+,s.SupplierID
+,cat.CategoryID
+,c.ContactName
+,c.City
+,c.Country
+,c.Email
+,c.Region
+,c.RegistrationDate
+,od.OrderDetailID
+,od.Quantity
+,od.Discount
+,od.LineTotal
+,od.TotalAfterDiss
+,o.ShipCity
+,o.ShipCountry
+,o.SalesRep
+,os.OrderTotal
+,p.UnitPrice
+,p.UnitsInStock
+,p.ReorderLevel
+,p.TotalStockPrice
+,s.ContactName
+,s.City
+,s.Country
+
+from Orders_Summary as os
+left join  Order_Details as od
+on os.OrderID=od.OrderID
+left join Products as p
+on p.ProductID=od.ProductID
+left join Customers as c
+on c.CustomerID=os.CustomerID
+left join Suppliers as s
+on s.SupplierID= p.SupplierID
+left join Catigories as cat
+on cat.CategoryID=p.CategoryID
+left join Orders as o
+on o.OrderID=od.OrderID
+order by 1
+--------------------------------------
+SELECT DISTINCT 
+    os.OrderID,
+    od.ProductID,
+    os.OrderDate,
+    os.CustomerID,
+    os.ShippedDate,
+    os.Freight,
+    p.ProductName,
+    c.CustomerName,
+    s.SupplierName AS SupplierName_Supplier,
+    cat.CategoryName,
+    s.SupplierID,
+    cat.CategoryID,
+    c.ContactName AS CustContactName,
+    c.City AS CustCity,
+    c.Country AS CustCountry,
+    c.Email,
+    c.Region AS CustRegion,
+    c.RegistrationDate,
+    od.OrderDetailID,
+    od.Quantity,
+    od.Discount,
+    od.LineTotal,
+    od.TotalAfterDiss,
+    o.ShipCity,
+    o.ShipCountry,
+    o.SalesRep,
+    os.OrderTotal,
+    p.UnitPrice,
+    p.UnitsInStock,
+    p.ReorderLevel,
+    p.TotalStockPrice,
+    s.ContactName AS SupplierContactName,
+    s.City AS SupplierCity,
+    s.Country AS SupplierCountry
+INTO Sales
+FROM Orders_Summary AS os
+LEFT JOIN Order_Details AS od
+    ON os.OrderID = od.OrderID
+LEFT JOIN Products AS p
+    ON p.ProductID = od.ProductID
+LEFT JOIN Customers AS c
+    ON c.CustomerID = os.CustomerID
+LEFT JOIN Suppliers AS s
+    ON s.SupplierID = p.SupplierID
+LEFT JOIN Catigories AS cat
+    ON cat.CategoryID = p.CategoryID
+LEFT JOIN Orders AS o
+    ON o.OrderID = od.OrderID
+ORDER BY os.OrderID;
+-------------------------
+select *
+from    Sales
+----------------
+delete Sales
+where 
+      OrderID is null
+      or ProductID is null
+      or OrderDate is null
+      or CustomerID is null
+      or ShippedDate is null
+      or Freight is null
+      or ProductName is null
+      or SupplierName_Supplier is null
+      or CategoryName is null
+      or SupplierID is null
+       or CategoryID is null 
+       or CustomerName is null
+       or CustContactName is null
+       or CustCity is null
+       or CustCountry is null
+       or Email is null
+       or CustRegion is null
+       or RegistrationDate is null
+       or OrderDetailID is null 
+       or Quantity is null
+       or Discount is null
+       or LineTotal is null 
+       or TotalAfterDiss is null
+       or ShipCity is null
+       or ShipCountry is null
+       or SalesRep is null
+       or OrderTotal is null
+       or UnitPrice is null
+       or UnitsInStock is null
+       or ReorderLevel is null
+       or TotalStockPrice is null
+       or SupplierContactName is null
+       or SupplierCity is null
+       or SupplierCountry is null
+       ----------------------------------------------
+       UPDATE Sales
+SET CustCountry= 'United States Of America';
+
+      
+
+
+
+
+
+
+
